@@ -7,6 +7,9 @@ public class MaxCreditsLimitExceeded extends EnrollmentRuleViolation{
         this.limit = limit;
     }
 
+    public int getLimit() {
+        return limit;
+    }
     @Override
     public String toString() {
         return String.format("Maximum number of credits(%d) exceeded.", limit);

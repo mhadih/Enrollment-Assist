@@ -54,6 +54,9 @@ public class Student {
 
     }
 
+    public void setGraduateLevel(GraduateLevel graduateLevel) {
+        this.graduateLevel = graduateLevel;
+    }
 
     @Override
     public boolean equals(Object o) {

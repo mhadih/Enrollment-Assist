@@ -3,6 +3,9 @@ package ir.proprog.enrollassist.domain.enrollmentList;
 import ir.proprog.enrollassist.Exception.ExceptionList;
 import ir.proprog.enrollassist.domain.EnrollmentRules.EnrollmentRuleViolation;
 import ir.proprog.enrollassist.domain.EnrollmentRules.ExamTimeCollision;
+import ir.proprog.enrollassist.domain.EnrollmentRules.MaxCreditsLimitExceeded;
+import ir.proprog.enrollassist.domain.EnrollmentRules.MinCreditsRequiredNotMet;
+import ir.proprog.enrollassist.domain.GraduateLevel;
 import ir.proprog.enrollassist.domain.course.Course;
 import ir.proprog.enrollassist.domain.section.ExamTime;
 import ir.proprog.enrollassist.domain.section.Section;
@@ -83,6 +86,80 @@ public class EnrollmentListTest {
         enrollmentList.addSection(ap_1);
         List<EnrollmentRuleViolation> violations = enrollmentList.checkExamTimeConflicts();
         assertEquals(violations.size(), 3);
+    }
+    @Test
+    public void checkValidGPALimitMinCredits() throws ExceptionList {
+        Section math1_1 = new Section(math1, "11");
+        Section phys1_1 = new Section(phys1, "21");
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(phys1_1);
+        List<EnrollmentRuleViolation> violations = enrollmentList.checkValidGPALimit();
+        assertEquals(violations.size(), 1);
+        assertTrue(violations.get(0) instanceof MinCreditsRequiredNotMet);
+    }
+
+    @Test
+    public void checkValidGPALimitMaxCreditTwentyFirstTerm() throws ExceptionList {
+        Section math1_1 = new Section(math1, "11");
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        List<EnrollmentRuleViolation> violations = enrollmentList.checkValidGPALimit();
+        assertEquals(violations.size(), 1);
+        assertTrue(violations.get(0) instanceof MaxCreditsLimitExceeded);
+        assertEquals(20, ((MaxCreditsLimitExceeded) violations.get(0)).getLimit());
+    }
+
+    @Test
+    public void checkValidGPALimitMaxCreditFourteen() throws ExceptionList {
+        Section math1_1 = new Section(math1, "11");
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        student.setGrade("11111", phys1, 10);
+        List<EnrollmentRuleViolation> violations = enrollmentList.checkValidGPALimit();
+        assertEquals(violations.size(), 1);
+        assertTrue(violations.get(0) instanceof MaxCreditsLimitExceeded);
+        assertEquals(14, ((MaxCreditsLimitExceeded) violations.get(0)).getLimit());
+    }
+
+    @Test
+    public void checkValidGPALimitMaxCreditTwentyWithGrade() throws ExceptionList {
+        Section math1_1 = new Section(math1, "11");
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        student.setGrade("11111", phys1, 16);
+        List<EnrollmentRuleViolation> violations = enrollmentList.checkValidGPALimit();
+        assertEquals(violations.size(), 1);
+        assertTrue(violations.get(0) instanceof MaxCreditsLimitExceeded);
+        assertEquals(20, ((MaxCreditsLimitExceeded) violations.get(0)).getLimit());
+    }
+
+    @Test
+    public void checkValidGPALimitGraduateLevelMaxValidCredits() throws ExceptionList {
+        student.setGraduateLevel(GraduateLevel.Masters);
+        Section math1_1 = new Section(math1, "11");
+        // 15 credits
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        enrollmentList.addSection(math1_1);
+        List<EnrollmentRuleViolation> violations = enrollmentList.checkValidGPALimit();
+        assertEquals(violations.size(), 1);
+        assertTrue(violations.get(0) instanceof MaxCreditsLimitExceeded);
+        assertEquals(GraduateLevel.Masters.getMaxValidCredits(), ((MaxCreditsLimitExceeded) violations.get(0)).getLimit());
     }
 
 }
