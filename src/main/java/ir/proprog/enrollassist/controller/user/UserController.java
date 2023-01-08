@@ -47,6 +47,8 @@ public class UserController {
 
         if (exceptionList.hasException())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exceptionList.toString());
+        userRepository.save(user);
+        System.out.println(userView.getId() + user.getId());
         return new UserView(user);
     }
 

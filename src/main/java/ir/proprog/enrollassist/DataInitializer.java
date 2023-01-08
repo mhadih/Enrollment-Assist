@@ -10,12 +10,13 @@ import ir.proprog.enrollassist.domain.section.Section;
 import ir.proprog.enrollassist.domain.student.Student;
 import ir.proprog.enrollassist.repository.*;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.List;
 
-//@Component
+@Component
 @AllArgsConstructor
 public class DataInitializer {
     StudentRepository studentRepository;
